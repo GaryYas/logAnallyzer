@@ -44,11 +44,7 @@ public class FunctionDetails {
         if(endDate.before(entryDate))
             System.out.println("hahaha");
 
-    //    BigInteger end =  BigInteger.valueOf(endDate.getTime());
-      //  BigInteger start = BigInteger.valueOf(entryDate.getTime());
-       // Long start = entryDate.getTime();
         duration = endDate.getTime()- entryDate.getTime();
-    //duration =  end.subtract(start).longValue() ;
     }
 
     public Long getDuration() {

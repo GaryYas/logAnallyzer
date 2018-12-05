@@ -38,4 +38,22 @@ public class FunctionUtils {
             return null;
         }
     }
+    public static String getFinalMessage(Long min, Long max, Long average, Long id, int count, String functionName){
+
+        StringBuilder finalValues = new StringBuilder("OperationsImpl:");
+        finalValues.append(functionName)
+                .append(" min: ")
+                .append(min)
+                .append(", max ")
+                .append(max)
+                .append(", avg ")
+                .append(average)
+                .append(", max id ")
+                .append(id)
+                .append(", count ")
+                .append(count);
+        return finalValues.toString();
+    }
+
+
 }
