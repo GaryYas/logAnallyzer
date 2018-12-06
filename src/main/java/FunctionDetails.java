@@ -1,9 +1,7 @@
 import java.math.BigInteger;
 import java.util.Date;
 
-/**
- * Created by Jary on 12/5/2018.
- */
+
 public class FunctionDetails {
 
     Date entryDate;
@@ -40,10 +38,8 @@ public class FunctionDetails {
         this.endDate = endDate;
     }
 
-    public void calculateDuration(){
-        if(endDate.before(entryDate))
-            System.out.println("hahaha");
 
+    public void calculateDuration(){
         duration = endDate.getTime()- entryDate.getTime();
     }
 

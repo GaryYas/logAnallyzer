@@ -6,19 +6,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-/**
- * Created by Jary on 12/5/2018.
- */
+
 public class FunctionUtils {
 
-    public static Date covertToDate(String unParsedDate){
+    public static Date covertToDate(String unParsedDate) throws ParseException {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss,SSS");
         Date date = null;
-        try {
+
             date = format.parse(unParsedDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+
+
         return date;
     }
 
@@ -33,16 +30,15 @@ public class FunctionUtils {
 
         }
         catch (Exception e){
-            //change!!
-            System.out.println(e);
-            return null;
+        throw new NullPointerException("line is not in correct format ,missing ':'");
+
         }
     }
     public static String getFinalMessage(Long min, Long max, Long average, Long id, int count, String functionName){
 
         StringBuilder finalValues = new StringBuilder("OperationsImpl:");
         finalValues.append(functionName)
-                .append(" min: ")
+                .append(" min ")
                 .append(min)
                 .append(", max ")
                 .append(max)

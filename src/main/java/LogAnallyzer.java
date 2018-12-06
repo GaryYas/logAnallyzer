@@ -7,9 +7,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Created by Jary on 12/5/2018.
- */
+
 public class LogAnallyzer {
     private Map<String,List<FunctionDetails>> functionsListMap = new HashMap<>();
     private Map<String,Map<Long,FunctionDetails>> functionsMap = new HashMap<>();
@@ -17,37 +15,41 @@ public class LogAnallyzer {
     public void analyze(String path) throws IOException {
 
                 Files.lines(Paths.get(path), Charset.defaultCharset()).forEach(line -> {
-                    String[] splits= line.split("\\s+");
+                      try {
 
-                    Pair<String,Long> nameAndId = FunctionUtils.getFunctionNameAndId(splits[5]);
-                    String functionName=  nameAndId.getKey();
-                    Long id = nameAndId.getValue();
-                    Date entryDate = FunctionUtils.covertToDate(splits[0]);
+                          String[] splits = line.split("\\s+");
 
-                    functionsMap.compute(functionName,(key, value)->{
-                        if(!functionsMap.containsKey(key))
-                        {
-                            FunctionDetails function = new FunctionDetails(entryDate,splits[3],functionName,id);
-                            Map<Long,FunctionDetails>map = new HashMap<>();
-                            map.put(function.getId(),function);
-                            return map;
-                        }
+                          Pair<String, Long> nameAndId = FunctionUtils.getFunctionNameAndId(splits[5]);
+                          String functionName = nameAndId.getKey();
+                          Long id = nameAndId.getValue();
+                          Date entryDate = FunctionUtils.covertToDate(splits[0]);
+                          String action = splits[3];
+                          functionsMap.compute(functionName, (key, value) -> {
+                              if (!functionsMap.containsKey(key)) {
+                                  FunctionDetails function = new FunctionDetails(entryDate, action, functionName, id);
+                                  Map<Long, FunctionDetails> map = new HashMap<>();
+                                  map.put(function.getId(), function);
+                                  return map;
+                              }
 
-                        Map<Long,FunctionDetails> funcMap = functionsMap.get(key);
-                        //add to check whether exit
-                        if(funcMap.containsKey(id)){
-                            FunctionDetails functionDetails = funcMap.get(id);
-                            functionDetails.setEndDate(entryDate);
-                            functionDetails.calculateDuration();
-                            return funcMap;
-                        }
-                        FunctionDetails function = new FunctionDetails(entryDate,splits[3],functionName,id);
-                        funcMap.put(id,function);
-                        return funcMap;
+                              Map<Long, FunctionDetails> funcMap = functionsMap.get(key);
+                              if (funcMap.containsKey(id) && action.equals("exit")) {
+                                  FunctionDetails functionDetails = funcMap.get(id);
+                                  functionDetails.setEndDate(entryDate);
+                                  functionDetails.calculateDuration();
+                                  return funcMap;
+                              }
+                              FunctionDetails function = new FunctionDetails(entryDate, action, functionName, id);
+                              funcMap.put(id, function);
+                              return funcMap;
+
+                          });
+                      }
+                      catch (Exception e){
+                          System.out.println("Got Exception while reading or parsing a line: "+e);
+                      }
 
                     });
-
-                });
 
         filterInternalList();
         calculateAndPrintResults();
