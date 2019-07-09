@@ -12,33 +12,49 @@ public class LogAnallyzer {
     private Map<String,List<FunctionDetails>> functionsListMap = new HashMap<>();
     private Map<String,Map<Long,FunctionDetails>> functionsMap = new HashMap<>();
 
+    /*
+        reads function line record  , stores it in memory , analyzes it ,and reads again next line from the file
+        same function call in entry and in exit will have same id
+        entry:
+            2015-10-26T18:20:19,887 TRACE [OperationsImpl] entry with (getActions:21911)
+        exit:
+         2015-10-26T18:28:11,138 TRACE [OperationsImpl] exit with (getActions:21911)
+
+    */
     public void analyze(String path) throws IOException {
 
+        //parse the line ans seperate it by space
                 Files.lines(Paths.get(path), Charset.defaultCharset()).forEach(line -> {
                       try {
 
                           String[] splits = line.split("\\s+");
+
 
                           Pair<String, Long> nameAndId = FunctionUtils.getFunctionNameAndId(splits[5]);
                           String functionName = nameAndId.getKey();
                           Long id = nameAndId.getValue();
                           Date entryDate = FunctionUtils.covertToDate(splits[0]);
                           String action = splits[3];
+
                           functionsMap.compute(functionName, (key, value) -> {
+                              //new function entry store it in map when function name is the key, and the value is map when key is id of the
+                              //function and value is functiondetails
                               if (!functionsMap.containsKey(key)) {
                                   FunctionDetails function = new FunctionDetails(entryDate, action, functionName, id);
                                   Map<Long, FunctionDetails> map = new HashMap<>();
                                   map.put(function.getId(), function);
                                   return map;
                               }
-
+                              //not new function,already appear in the file ,(not first call for it)
                               Map<Long, FunctionDetails> funcMap = functionsMap.get(key);
+                              //check whether it is exit call , if so calculate the duration of the call by start and end id of the function
                               if (funcMap.containsKey(id) && action.equals("exit")) {
                                   FunctionDetails functionDetails = funcMap.get(id);
                                   functionDetails.setEndDate(entryDate);
                                   functionDetails.calculateDuration();
                                   return funcMap;
                               }
+                              //already in exists in functionsMap but it is not exit of the function,which means another call to the same function
                               FunctionDetails function = new FunctionDetails(entryDate, action, functionName, id);
                               funcMap.put(id, function);
                               return funcMap;
@@ -55,7 +71,7 @@ public class LogAnallyzer {
         calculateAndPrintResults();
 
     }
-
+    //remove functions with no end date
     private void filterInternalList(){
 
         functionsMap.entrySet().forEach(entry->{
@@ -67,6 +83,7 @@ public class LogAnallyzer {
 
     }
 
+    //for each function calculate its max value,sum,min and avg
     private void calculateAndPrintResults(){
 
         functionsListMap.entrySet().forEach(entry->{
