@@ -9,7 +9,7 @@ import java.util.TimeZone;
 
 public class FunctionUtils {
 
-    //convert string to date
+    //convert String to date
     public static Date covertToDate(String unParsedDate) throws ParseException {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss,SSS");
         Date date = null;
